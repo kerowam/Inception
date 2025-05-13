@@ -1,18 +1,14 @@
-FROM debian:buster as builder-crt-key
+FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update && apt-get install -y nginx openssl
 
-run mkdir /crt-key
+COPY ./tools/certs/gfredes-.42.fr.crt /etc/nginx/ssl/gfredes-.42.fr.crt
+COPY ./tools/certs/gfredes-.42.fr.key /etc/nginx/ssl/gfredes-.42.fr.key
 
-run openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /crt-key/nginx.key -out /crt-key/nginx.crt -subj "/C=SP/ST=Malaga/L=Malaga/O=42 Malaga/OU=gfredes-/CN=gfredes-"
+COPY conf/nginx.conf /etc/nginx/sites-available/default
 
-FROM debian:buster
-
-RUN apt-get update && apt-get install -y nginx
-
-#COPY ./requirements/nginx/nginx.conf /etc/nginx/sites-available/default
-
-COPY --from=builder-crt-key /crt-key /etc/nginx/ssl
+#COPY index.html /var/www/html/index.html
+RUN touch /var/www/html/index.html && echo "<h1>Nginx is working!</h1>" > /var/www/html/index.html
 
 EXPOSE 443
 
