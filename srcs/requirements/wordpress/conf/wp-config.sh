@@ -7,10 +7,12 @@ define( 'DB_NAME', '${DB_NAME}' );
 define( 'DB_USER', '${DB_USER}' );
 define( 'DB_PASSWORD', '${DB_PASS}' );
 define( 'DB_HOST', 'mariadb' );
-define( 'DB_CHARSET', 'utf8' );
+define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
 define( 'FS_METHOD', 'direct' );
 define( 'FORCE_SSL_ADMIN', true );
+define( 'AUTOMATIC_UPDATER_DISABLED', true );
+define( 'WP_AUTO_UPDATE_CORE', false );
 
 if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
     \$_SERVER['HTTPS'] = 'on';

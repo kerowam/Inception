@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:3.22
 
 ARG DB_NAME
 ARG DB_USER
@@ -13,7 +13,7 @@ RUN mkdir -p /etc/my.cnf.d && echo '[mysqld]\nskip-host-cache\nskip-name-resolve
 
 RUN sed -i 's/^skip-networking/#skip-networking/' /etc/my.cnf.d/mariadb-server.cnf
 
-RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
+RUN mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 EXPOSE 3306
 
@@ -23,4 +23,4 @@ RUN sh create_db.sh
 
 USER mysql
 
-CMD ["/usr/bin/mysqld", "--skip-log-error"]
+CMD ["/usr/bin/mariadbd", "--skip-log-error"]

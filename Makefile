@@ -1,22 +1,27 @@
 NAME = inception
 
 all:
+	@if [ ! -f srcs/.env ]; then cp /home/$(USER)/.env srcs/.env; fi
+	@if [ ! -f srcs/requirements/nginx/tools/certs/$(USER).42.fr.crt ]; then \
+		cp /home/$(USER)/$(USER).42.fr.crt srcs/requirements/nginx/tools/certs/$(USER).42.fr.crt; fi
+	@if [ ! -f srcs/requirements/nginx/tools/certs/$(USER).42.fr.key ]; then \
+		cp /home/$(USER)/$(USER).42.fr.key srcs/requirements/nginx/tools/certs/$(USER).42.fr.key; fi
 	@mkdir -p /home/$(USER)/data
 	@mkdir -p /home/$(USER)/data/mariadb
 	@mkdir -p /home/$(USER)/data/wordpress
-	@printf "${name}: Building and setting configuration: ${NAME}...\n"
+	@printf "${NAME}: Building and setting configuration: ${NAME}...\n"
 	@docker-compose -f srcs/docker-compose.yml --env-file srcs/.env up -d --build
 
 down:
-	@printf "${name}: Stopping...\n"
+	@printf "${NAME}: Stopping...\n"
 	@docker-compose -f srcs/docker-compose.yml down
 
 clean:	down
-	@printf "${name}: Cleaning configuration...\n"
+	@printf "${NAME}: Cleaning configuration...\n"
 	@docker system prune -a
-	
+
 fclean:
-	@printf "${name}: Cleaning configuration and volumes...\n"
+	@printf "${NAME}: Cleaning configuration and volumes...\n"
 	@if [ -n "$$(docker ps -qa)" ]; then docker stop $$(docker ps -qa); fi
 	@docker system prune --all --force --volumes
 	@docker network prune --force
@@ -29,4 +34,4 @@ fclean:
 
 re:	clean all
 
-.PHONY: all down clean fclean re build
+.PHONY: all down clean fclean re copy

@@ -37,7 +37,7 @@ until mysql -h mariadb -u"${DB_USER}" -p"${DB_PASS}" -e "USE ${DB_NAME};" 2>/dev
         mysql -h mariadb -u"${DB_USER}" -p"${DB_PASS}" -e "USE ${DB_NAME};"
         exit 1
     fi
-    echo "Waiting for MariaDB... (attempt $RETRY_COUNT/$MAX_RETRIES)"
+    echo "Waiting for MariaDB... (attempt $RETRIES/$MAX_RETRIES)"
     sleep 5
 done
 

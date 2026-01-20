@@ -1,19 +1,21 @@
-FROM alpine:3.18
+FROM alpine:3.22
 
-ARG PHP_VERSION=82
+ARG PHP_VERSION=83
 ARG DB_NAME
 ARG DB_USER
 ARG DB_PASS
 ARG DOMAIN_NAME
 ARG WP_USER
 ARG WP_PASS
+ARG ADMIN_EMAIL
 
 ENV DB_NAME=$DB_NAME \
     DB_USER=$DB_USER \
     DB_PASS=$DB_PASS \
     DOMAIN_NAME=$DOMAIN_NAME \
     WP_USER=$WP_USER \
-    WP_PASS=$WP_PASS
+    WP_PASS=$WP_PASS \
+	ADMIN_EMAIL=$ADMIN_EMAIL
 
 RUN apk update && apk upgrade && apk add --no-cache \
     php${PHP_VERSION} php${PHP_VERSION}-fpm php${PHP_VERSION}-phar \
@@ -27,7 +29,7 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-RUN ln -s /usr/bin/php${PHP_VERSION} /usr/bin/php
+#RUN ln -s /usr/bin/php${PHP_VERSION} /usr/bin/php
 
 RUN php -v
 
@@ -52,4 +54,4 @@ RUN chmod +x /usr/local/bin/wp-setup.sh
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "/usr/local/bin/wp-setup.sh && exec /usr/sbin/php-fpm82 -F"]
+CMD ["sh", "-c", "/usr/local/bin/wp-setup.sh && exec /usr/sbin/php-fpm83 -F"]
