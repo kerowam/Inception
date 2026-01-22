@@ -4,11 +4,11 @@ _This project has been created as part of the 42 curriculum by gfredes-_
 
 ## Description
 
-**Inception** is a Docker-based containerization project that sets up a complete web infrastructure using modern DevOps practices. The project implements a multi-container environment featuring:
+**Inception** is a Docker-based containerization project that sets up a complete web infrastructure using modern DevOps practices. The project implements a multi-container environment featuring, each container includes one service:
 
-- **Nginx** - A reverse proxy and web server with SSL/TLS encryption
-- **WordPress** - A PHP-based content management system  
-- **MariaDB** - A robust relational database server
+- **Nginx** - is a high-performance web server and reverse proxy. Its primary function is to receive HTTP/HTTPS requests from clients and respond with web content, or forward those requests to other services.
+- **WordPress with php-fpm** - WordPress is a content management system (CMS). Its main function is to allow you to create and manage websites without having to program them from scratch. PHP-FPM stands for PHP FastCGI Process Manager. It is the component that executes PHP code efficiently and independently of the web server in modern environments. 
+- **MariaDB** - MariaDB is an open-source relational database management system (RDBMS). It is used to store, organize, and query structured data using SQL.
 
 The goal is to understand and practice containerization concepts, Docker Compose orchestration, networking, persistence, and security best practices in a production-like environment.
 
@@ -31,7 +31,7 @@ The goal is to understand and practice containerization concepts, Docker Compose
 
 2. **Configure environment variables:**
    - Create or copy your `.env` file to `srcs/.env`
-   - Store sensitive credentials using Docker secrets (files located in the `secrets/` directory).
+   - You can store sensitive credentials using Docker secrets
 
 3. **Build and start the infrastructure:**
    ```bash
@@ -70,6 +70,9 @@ All containers communicate over a **custom bridge network** (`inception`), allow
 
 ### Virtual Machines vs Docker
 
+*   **VM:** Virtualizes the **Hardware**. Each VM runs a full Operating System (Kernel + User Space) on top of a Hypervisor. It is heavy, slow to boot, but offers high isolation.
+*   **Docker:** Virtualizes the **Operating System**. Containers share the Host's Kernel but have isolated User Spaces (bins/libs). They are lightweight, start instantly, and use fewer resources.
+
 | Aspect | Virtual Machines | Docker |
 |--------|-----------------|--------|
 | **Overhead** | High - full OS per VM (~5-10GB) | Low - shared kernel (~MB per container) |
@@ -83,6 +86,9 @@ All containers communicate over a **custom bridge network** (`inception`), allow
 
 ### Secrets vs Environment Variables
 
+*   **Environment Variables:** Stored in the container's environment. Easy to use and standard for configuration. However, they can be viewed via commands like `docker inspect`.
+*   **Secrets (Docker Swarm/K8s):** Files encrypted at rest and mounted into `/run/secrets/` only when the container is running. This is the more secure industry standard for sensitive data (passwords, keys), though for this project, environment variables were used for simplicity.
+
 | Aspect | Environment Variables | Secrets |
 |--------|----------------------|---------|
 | **Security** | Visible in `docker inspect` and logs | Encrypted at rest in Docker Swarm |
@@ -91,9 +97,12 @@ All containers communicate over a **custom bridge network** (`inception`), allow
 | **Rotation** | Requires container restart | Can be rotated without restart |
 | **Complexity** | Simple to implement | More complex setup required |
 
-**Inception Implementation:** Uses `.env` files with environment variables for simplicity (suitable for development). Variables are passed via docker-compose to containers. In production, use Docker Secrets (requires Swarm mode) or external secret management systems (Vault, AWS Secrets Manager, etc.).
+**Inception Implementation:** Uses `.env` files with environment variables for simplicity (suitable for development). Variables are passed via docker-compose to containers.
 
 ### Docker Network vs Host Network
+
+*   **Host Network:** The container shares the host's networking namespace. If the container listens on port 80, it binds directly to the host's port 80. Fast, but causes port conflicts and offers no isolation.
+*   **Docker Network (Bridge):** Containers get their own IP addresses inside a virtual network. They can talk to each other via DNS names (e.g., `ping mariadb`). Ports must be explicitly mapped (`-p 80:80`) to be accessible from the outside.
 
 | Aspect | Docker Network (Bridge) | Host Network |
 |--------|------------------------|-------------|
@@ -111,6 +120,14 @@ All containers communicate over a **custom bridge network** (`inception`), allow
 - Better for multi-container applications
 
 ### Docker Volumes vs Bind Mounts
+
+*   **Docker Volume:** Volumes are persistent storage mechanisms managed by the Docker daemon. They retain data even after the containers using them are removed. Volume data is stored on the filesystem on the host, but in order to interact with the data in the volume, you must mount the volume to a container. Directly accessing or interacting with the volume data is unsupported, undefined behavior, and may result in the volume or its data breaking in unexpected ways.
+
+Volumes are ideal for performance-critical data processing and long-term storage needs. Since the storage location is managed on the daemon host, volumes provide the same raw file performance as accessing the host filesystem directly.
+
+*   **Bind Mounts:** Bind mounts create a direct link between a host system path and a container, allowing access to files or directories stored anywhere on the host. Since they aren't isolated by Docker, both non-Docker processes on the host and container processes can modify the mounted files simultaneously.
+
+Use bind mounts when you need to be able to access files from both the container and the host.
 
 | Aspect | Docker Volumes | Bind Mounts |
 |--------|----------------|------------|
@@ -132,7 +149,7 @@ All containers communicate over a **custom bridge network** (`inception`), allow
 - db-volume:/var/lib/mysql
 ```
 
-**Data Storage Location:** `/home/$USER/data/`
+**Data Storage Location:**
 - **WordPress:** `/home/$USER/data/wordpress/` - Contains WordPress files, plugins, themes
 - **MariaDB:** `/home/$USER/data/mariadb/` - Contains database files and structure
 
@@ -159,7 +176,6 @@ This hybrid approach leverages:
 - [Let's Encrypt](https://letsencrypt.org/)
 - [OpenSSL Documentation](https://www.openssl.org/docs/)
 - [Mozilla SSL Configuration Generator](https://mozilla.github.io/server-side-tls/ssl-config-generator/)
-- [OWASP Security Guidelines](https://owasp.org/)
 
 ### DevOps Concepts
 - [The Twelve-Factor App](https://12factor.net/)
