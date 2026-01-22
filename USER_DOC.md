@@ -7,7 +7,6 @@
 3. [Accessing the Services](#accessing-the-services)
 4. [Managing Credentials](#managing-credentials)
 5. [Verifying Services](#verifying-services)
-6. [Troubleshooting](#troubleshooting)
 
 ---
 
